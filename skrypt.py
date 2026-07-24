@@ -477,12 +477,54 @@ data_group_alias_map = build_alias_map(data_groups)
 # External pool reference scan across ltm/apm/afm.
 # This is the main ver16 safety check.
 pool_module_refs = defaultdict(list)
+
+def ltm_header_can_reference_pool(header):
+    """
+    Return True only for LTM object types that can realistically reference an LTM pool.
+
+    This prevents false positives when an unrelated LTM object has the same name as a pool,
+    for example:
+        ltm pool /Common/oem12c-4900
+        ltm monitor tcp /Common/oem12c-4900
+
+    In that case the monitor object name should not be treated as an external reference
+    to the pool.
+    """
+    if header.startswith("ltm virtual "):
+        return True
+    if header.startswith("ltm policy "):
+        return True
+    if header.startswith("ltm rule "):
+        return True
+
+    # Explicitly ignore LTM object definitions that may share the same name as a pool
+    # but do not represent a pool dependency.
+    if header.startswith("ltm pool "):
+        return False
+    if header.startswith("ltm monitor "):
+        return False
+    if header.startswith("ltm node "):
+        return False
+    if header.startswith("ltm profile "):
+        return False
+    if header.startswith("ltm persistence "):
+        return False
+    if header.startswith("ltm data-group "):
+        return False
+    if header.startswith("ltm snatpool "):
+        return False
+
+    return False
+
+
 for module, header, block_text in find_module_blocks(set(["ltm", "apm", "afm"])):
+
+    if module == "ltm" and not ltm_header_can_reference_pool(header):
+        continue
+
     for pool_name in extract_named_refs_fast(block_text, pool_alias_map):
-        # Do not count the pool definition as a usage of itself.
-        if header == "ltm pool {0}".format(pool_name):
-            continue
         pool_module_refs[pool_name].append(header)
+
 for p in pool_module_refs.keys():
     pool_module_refs[p] = unique_list(pool_module_refs[p])
 
