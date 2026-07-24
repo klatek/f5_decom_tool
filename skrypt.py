@@ -11,7 +11,7 @@ from collections import defaultdict, deque
 
 # F5 BIG-IP decommission inventory and safe-delete helper
 # Python 2.7.5 compatible
-# Version 16:
+# Version 17:
 # - Adds external pool dependency scan across LTM, APM and AFM modules.
 # - Pools referenced by APM/AFM or non-selected LTM objects are protected from delete commands.
 # - Orphaned pool detection now means no pool reference anywhere in scanned ltm/apm/afm blocks, excluding the pool definition itself.
@@ -701,7 +701,7 @@ def delete_command(typ, name):
     if typ == "data-group": return "tmsh delete ltm data-group {0} {1}".format(get_data_group_type(name), name)
     return "# unsupported delete command for {0} {1}".format(typ, name)
 
-ordered_groups = ["virtual server", "policy", "pool", "pool monitor", "pool monitor cert", "pool monitor key", "node", "snat pool", "persistence profile", "one-connect profile", "tcp profile", "client ssl profile", "client ssl key", "client ssl cert", "server ssl profile", "server ssl key", "server ssl cert", "irule", "data-group"]
+ordered_groups = ["virtual server", "policy", "pool", "pool monitor", "pool monitor cert", "pool monitor key", "node", "snat pool", "persistence profile", "one-connect profile", "tcp profile", "client ssl profile", "client ssl cert", "client ssl key", "server ssl profile", "server ssl cert", "server ssl key", "irule", "data-group"]
 list_groups = defaultdict(dict); delete_groups = defaultdict(dict); skipped_groups = defaultdict(dict); invalid_groups = defaultdict(dict); builtin_groups = defaultdict(dict); defaults_scope_groups = defaultdict(dict); defaults_external_groups = defaultdict(dict); pool_external_groups = defaultdict(dict)
 
 for typ in ordered_groups:
