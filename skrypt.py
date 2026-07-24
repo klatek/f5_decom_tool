@@ -11,7 +11,7 @@ from collections import defaultdict, deque
 
 # F5 BIG-IP decommission inventory and safe-delete helper
 # Python 2.7.5 compatible
-# Version 16:
+# Version 17:
 # - Adds external pool dependency scan across LTM, APM and AFM modules.
 # - Pools referenced by APM/AFM or non-selected LTM objects are protected from delete commands.
 # - Orphaned pool detection now means no pool reference anywhere in scanned ltm/apm/afm blocks, excluding the pool definition itself.
